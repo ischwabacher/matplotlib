@@ -892,6 +892,11 @@ grestore
         stroke = stroke and mightstroke
         fill = (fill and rgbFace is not None and
                 (len(rgbFace) <= 3 or rgbFace[3] != 0.0))
+        
+        if rgbFace is not None and len(rgbFace) > 3 and 0.0 < rgbFace[3] < 1.0:
+            import warnings
+            warnings.warn("PostScript format doesn't support partial "
+                          'transparency')
 
         if mightstroke:
             self.set_linewidth(gc.get_linewidth())
@@ -900,7 +905,12 @@ grestore
             cint = gc.get_capstyle()
             self.set_linecap(cint)
             self.set_linedash(*gc.get_dashes())
-            self.set_color(*gc.get_rgb()[:3])
+            color = gc.get_rgb()
+            if len(color) > 3 and 0.0 < color[3] < 1.0:
+                import warnings
+                warnings.warn("PostScript format doesn't support partial "
+                              'transparency')
+            self.set_color(*color[:3])
         write('gsave\n')
 
         cliprect = gc.get_clip_rectangle()
